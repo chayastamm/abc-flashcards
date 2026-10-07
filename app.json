@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "ABC Cards",
+    "slug": "abc-cards",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.cstamm.abccards",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#F8F9FA",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#F8F9FA"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "68da73c2-0d32-4d9c-9fe7-6269e4d69aaf"
+      }
+    }
+  }
+}
