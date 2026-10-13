@@ -5,6 +5,7 @@ import {
   Image,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   useWindowDimensions,
   View,
@@ -56,6 +57,23 @@ function shuffle<T>(items: T[]): T[] {
   return a;
 }
 
+// Clock display for the play screen, e.g. "3:05".
+function formatClock(ms: number): string {
+  const secs = Math.floor(ms / 1000);
+  return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+}
+
+// Spoken-style duration for the finish screen, e.g. "3 minutes and 20 seconds".
+function formatDuration(ms: number): string {
+  const secs = Math.floor(ms / 1000);
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
+  if (m === 0) return plural(s, 'second');
+  if (s === 0) return plural(m, 'minute');
+  return `${plural(m, 'minute')} and ${plural(s, 'second')}`;
+}
+
 export default function App() {
   // Andika is designed for early readers: distinct I/l and the a/g shapes kids learn to write.
   const [fontsLoaded] = useFonts({ Andika_700Bold });
@@ -74,11 +92,16 @@ function Game() {
   const [screen, setScreen] = useState<Screen>('start');
   const [mode, setMode] = useState<Mode>('upper');
   const [deck, setDeck] = useState<string[]>([]);
+  // Timed mode is off each time the app opens; it isn't persisted.
+  const [timed, setTimed] = useState(false);
+  const [startedAt, setStartedAt] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const total = lettersFor(mode).length;
 
   const start = (m: Mode) => {
     setMode(m);
     setDeck(shuffle(lettersFor(m)));
+    setStartedAt(Date.now());
     setScreen('play');
   };
 
@@ -87,6 +110,7 @@ function Game() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const rest = deck.slice(1);
     if (rest.length === 0) {
+      setElapsed(Date.now() - startedAt);
       setScreen('done');
     }
     setDeck(rest);
@@ -101,24 +125,36 @@ function Game() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      {screen === 'start' && <StartScreen onStart={start} />}
+      {screen === 'start' && <StartScreen onStart={start} timed={timed} onToggleTimed={setTimed} />}
       {screen === 'play' && deck.length > 0 && (
         <PlayScreen
           deck={deck}
           total={total}
+          startedAt={timed ? startedAt : null}
           onCheck={onCheck}
           onSkip={onSkip}
           onHome={() => setScreen('start')}
         />
       )}
       {screen === 'done' && (
-        <DoneScreen total={total} onRestart={() => start(mode)} onHome={() => setScreen('start')} />
+        <DoneScreen
+          total={total}
+          elapsed={timed ? elapsed : null}
+          onRestart={() => start(mode)} onHome={() => setScreen('start')} />
       )}
     </View>
   );
 }
 
-function StartScreen({ onStart }: { onStart: (mode: Mode) => void }) {
+function StartScreen({
+  onStart,
+  timed,
+  onToggleTimed,
+}: {
+  onStart: (mode: Mode) => void;
+  timed: boolean;
+  onToggleTimed: (timed: boolean) => void;
+}) {
   const pulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -155,6 +191,36 @@ function StartScreen({ onStart }: { onStart: (mode: Mode) => void }) {
           </Pressable>
         ))}
       </View>
+      <View style={styles.timedRow}>
+        <Ionicons name="stopwatch" size={28} color={INK} />
+        <Text style={styles.timedLabel} onPress={() => onToggleTimed(!timed)}>
+          Timed Mode
+        </Text>
+        <Switch
+          value={timed}
+          onValueChange={onToggleTimed}
+          accessibilityLabel="Timed mode"
+          trackColor={{ false: '#CED4DA', true: GREEN }}
+          thumbColor="#fff"
+        />
+      </View>
+    </View>
+  );
+}
+
+// Ticks on its own so the rest of the play screen doesn't re-render every second.
+function Timer({ startedAt }: { startedAt: number }) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <View style={styles.timer} accessibilityLabel={`Time: ${formatDuration(now - startedAt)}`}>
+      <Ionicons name="stopwatch" size={22} color={INK} />
+      <Text style={styles.timerText}>{formatClock(now - startedAt)}</Text>
     </View>
   );
 }
@@ -162,12 +228,14 @@ function StartScreen({ onStart }: { onStart: (mode: Mode) => void }) {
 function PlayScreen({
   deck,
   total,
+  startedAt,
   onCheck,
   onSkip,
   onHome,
 }: {
   deck: string[];
   total: number;
+  startedAt: number | null;
   onCheck: () => void;
   onSkip: () => void;
   onHome: () => void;
@@ -193,13 +261,17 @@ function PlayScreen({
   return (
     <View style={styles.flex}>
       <View style={styles.header}>
-        <Pressable onPress={onHome} hitSlop={12} accessibilityLabel="Home">
-          <Ionicons name="home" size={30} color={INK} />
-        </Pressable>
+        <View style={styles.headerSide}>
+          <Pressable onPress={onHome} hitSlop={12} accessibilityLabel="Home">
+            <Ionicons name="home" size={30} color={INK} />
+          </Pressable>
+        </View>
         <Text style={styles.progress}>
           {learned + 1} / {total}
         </Text>
-        <View style={{ width: 30 }} />
+        <View style={[styles.headerSide, styles.headerRight]}>
+          {startedAt !== null && <Timer startedAt={startedAt} />}
+        </View>
       </View>
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${(learned / total) * 100}%` }]} />
@@ -260,10 +332,12 @@ function PlayScreen({
 
 function DoneScreen({
   total,
+  elapsed,
   onRestart,
   onHome,
 }: {
   total: number;
+  elapsed: number | null;
   onRestart: () => void;
   onHome: () => void;
 }) {
@@ -288,6 +362,9 @@ function DoneScreen({
         </Animated.Text>
         <Text style={styles.doneTitle}>Great job!</Text>
         <Text style={styles.doneSubtitle}>You did all {total} letters!</Text>
+        {elapsed !== null && (
+          <Text style={styles.doneTime}>You finished in {formatDuration(elapsed)}!</Text>
+        )}
         <View style={styles.doneButtons}>
           <Pressable
             onPress={onHome}
@@ -396,6 +473,8 @@ const styles = StyleSheet.create({
   },
   modeLabel: { fontSize: 32, fontFamily: 'Andika_700Bold' },
   modeCaption: { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: 4 },
+  timedRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 32 },
+  timedLabel: { fontSize: 20, fontWeight: '800', color: INK },
 
   header: {
     flexDirection: 'row',
@@ -404,7 +483,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
   },
+  headerSide: { flex: 1 },
+  headerRight: { alignItems: 'flex-end' },
   progress: { fontSize: 22, fontWeight: '800', color: INK },
+  timer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  timerText: { fontSize: 22, fontWeight: '800', color: INK, fontVariant: ['tabular-nums'] },
   progressTrack: {
     height: 10,
     marginHorizontal: 20,
@@ -447,6 +530,7 @@ const styles = StyleSheet.create({
   trophy: { fontSize: 140 },
   doneTitle: { fontSize: 44, fontWeight: '900', color: RED, marginTop: 8 },
   doneSubtitle: { fontSize: 22, fontWeight: '700', color: INK, marginTop: 8 },
+  doneTime: { fontSize: 22, fontWeight: '800', color: BLUE, marginTop: 8, textAlign: 'center' },
   doneButtons: { flexDirection: 'row', alignItems: 'center', gap: 24, marginTop: 40 },
   homeButton: { width: 90, height: 90, backgroundColor: YELLOW },
   restartButton: {
