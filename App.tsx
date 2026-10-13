@@ -4,6 +4,7 @@ import {
   Easing,
   Image,
   Pressable,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -94,20 +95,26 @@ function Game() {
   const [deck, setDeck] = useState<string[]>([]);
   // Timed mode is off each time the app opens; it isn't persisted.
   const [timed, setTimed] = useState(false);
+  // On: missed cards go to the back of the deck. Off: each card shows once and the score is tallied.
+  const [repeatMisses, setRepeatMisses] = useState(true);
+  // The letters in this round, in alphabet order, and the ones missed when misses don't repeat.
+  const [round, setRound] = useState<string[]>([]);
+  const [missed, setMissed] = useState<string[]>([]);
   const [startedAt, setStartedAt] = useState(0);
   const [elapsed, setElapsed] = useState(0);
-  const total = lettersFor(mode).length;
 
-  const start = (m: Mode) => {
+  // Plays the full deck for the mode, or just the given letters (e.g. a retry of missed ones).
+  const start = (m: Mode, letters = lettersFor(m)) => {
     setMode(m);
-    setDeck(shuffle(lettersFor(m)));
+    setRound(letters);
+    setDeck(shuffle(letters));
+    setMissed([]);
     setStartedAt(Date.now());
     setScreen('play');
   };
 
-  // Check: card is learned, remove it from the deck.
-  const onCheck = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  // Remove the top card, finishing the round if it was the last.
+  const advance = () => {
     const rest = deck.slice(1);
     if (rest.length === 0) {
       setElapsed(Date.now() - startedAt);
@@ -116,20 +123,39 @@ function Game() {
     setDeck(rest);
   };
 
-  // X: keep the card, send it to the back of the deck so it repeats.
+  // Check: card is learned, remove it from the deck.
+  const onCheck = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    advance();
+  };
+
+  // X: send the card to the back of the deck so it repeats, or move on if repeats are off.
   const onSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (!repeatMisses) {
+      setMissed([...missed, deck[0]]);
+      advance();
+      return;
+    }
     const [first, ...rest] = deck;
     setDeck([...rest, first]);
   };
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      {screen === 'start' && <StartScreen onStart={start} timed={timed} onToggleTimed={setTimed} />}
+      {screen === 'start' && (
+        <StartScreen
+          onStart={start}
+          timed={timed}
+          onToggleTimed={setTimed}
+          repeatMisses={repeatMisses}
+          onToggleRepeatMisses={setRepeatMisses}
+        />
+      )}
       {screen === 'play' && deck.length > 0 && (
         <PlayScreen
           deck={deck}
-          total={total}
+          total={round.length}
           startedAt={timed ? startedAt : null}
           onCheck={onCheck}
           onSkip={onSkip}
@@ -138,9 +164,14 @@ function Game() {
       )}
       {screen === 'done' && (
         <DoneScreen
-          total={total}
+          round={round}
+          allLetters={lettersFor(mode)}
+          missed={repeatMisses ? null : missed}
           elapsed={timed ? elapsed : null}
-          onRestart={() => start(mode)} onHome={() => setScreen('start')} />
+          onRestart={() => start(mode)}
+          onRetryMissed={() => start(mode, round.filter((l) => missed.includes(l)))}
+          onHome={() => setScreen('start')}
+        />
       )}
     </View>
   );
@@ -150,10 +181,14 @@ function StartScreen({
   onStart,
   timed,
   onToggleTimed,
+  repeatMisses,
+  onToggleRepeatMisses,
 }: {
   onStart: (mode: Mode) => void;
   timed: boolean;
   onToggleTimed: (timed: boolean) => void;
+  repeatMisses: boolean;
+  onToggleRepeatMisses: (repeatMisses: boolean) => void;
 }) {
   const pulse = useRef(new Animated.Value(1)).current;
 
@@ -200,6 +235,19 @@ function StartScreen({
           value={timed}
           onValueChange={onToggleTimed}
           accessibilityLabel="Timed mode"
+          trackColor={{ false: '#CED4DA', true: GREEN }}
+          thumbColor="#fff"
+        />
+      </View>
+      <View style={styles.toggleRow}>
+        <Ionicons name="repeat" size={28} color={INK} />
+        <Text style={styles.timedLabel} onPress={() => onToggleRepeatMisses(!repeatMisses)}>
+          Repeat Missed Letters
+        </Text>
+        <Switch
+          value={repeatMisses}
+          onValueChange={onToggleRepeatMisses}
+          accessibilityLabel="Repeat missed letters"
           trackColor={{ false: '#CED4DA', true: GREEN }}
           thumbColor="#fff"
         />
@@ -331,16 +379,26 @@ function PlayScreen({
 }
 
 function DoneScreen({
-  total,
+  round,
+  allLetters,
+  missed,
   elapsed,
   onRestart,
+  onRetryMissed,
   onHome,
 }: {
-  total: number;
+  round: string[];
+  // The mode's full deck. On a retry round, letters outside it were already right in an earlier round.
+  allLetters: string[];
+  // Null when misses repeat, since every letter ends up correct.
+  missed: string[] | null;
   elapsed: number | null;
   onRestart: () => void;
+  onRetryMissed: () => void;
   onHome: () => void;
 }) {
+  const total = round.length;
+  const hasMisses = missed !== null && missed.length > 0;
   const bounce = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -351,19 +409,51 @@ function DoneScreen({
   return (
     <View style={styles.flex}>
       <Confetti />
-      <View style={styles.center}>
+      <ScrollView contentContainerStyle={styles.doneContent}>
         <Animated.Text
           style={[
             styles.trophy,
+            hasMisses && styles.trophySmall,
             { transform: [{ scale: bounce.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] }) }] },
           ]}
         >
           🏆
         </Animated.Text>
         <Text style={styles.doneTitle}>Great job!</Text>
-        <Text style={styles.doneSubtitle}>You did all {total} letters!</Text>
+        <Text style={styles.doneSubtitle}>
+          {missed === null
+            ? `You did all ${total} letters!`
+            : `You got ${total - missed.length}/${total} right!`}
+        </Text>
         {elapsed !== null && (
           <Text style={styles.doneTime}>You finished in {formatDuration(elapsed)}!</Text>
+        )}
+        {hasMisses && (
+          <>
+            <View style={styles.results}>
+              {allLetters.map((letter) => {
+                const wrong = missed.includes(letter);
+                return (
+                  <View
+                    key={letter}
+                    accessibilityLabel={`${letter}, ${wrong ? 'wrong' : 'right'}`}
+                    style={[styles.resultChip, { backgroundColor: wrong ? RED : GREEN }]}
+                  >
+                    <Text style={[styles.resultLetter, { color: inkOn(wrong ? RED : GREEN) }]}>{letter}</Text>
+                    <Ionicons name={wrong ? 'close' : 'checkmark'} size={16} color={inkOn(wrong ? RED : GREEN)} />
+                  </View>
+                );
+              })}
+            </View>
+            <Pressable
+              onPress={onRetryMissed}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}
+            >
+              <Ionicons name="repeat" size={28} color="#fff" />
+              <Text style={styles.retryLabel}>Practice the {missed.length} I missed</Text>
+            </Pressable>
+          </>
         )}
         <View style={styles.doneButtons}>
           <Pressable
@@ -381,7 +471,7 @@ function DoneScreen({
             <Ionicons name="refresh" size={52} color="#fff" />
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -460,9 +550,9 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8, transform: [{ scale: 0.95 }] },
 
   welcome: { fontSize: 54, fontWeight: '900', color: RED, letterSpacing: 2 },
-  subtitle: { fontSize: 18, fontWeight: '700', color: INK, textAlign: 'center', marginTop: 8, marginBottom: 64 },
+  subtitle: { fontSize: 18, fontWeight: '700', color: INK, textAlign: 'center', marginTop: 8, marginBottom: 32 },
   logo: { width: 280, height: 160 },
-  modeRow: { flexDirection: 'row', width: '100%', maxWidth: 460, gap: 10, marginTop: 72 },
+  modeRow: { flexDirection: 'row', width: '100%', maxWidth: 460, gap: 10, marginTop: 36 },
   modeButton: {
     flex: 1,
     paddingVertical: 14,
@@ -474,6 +564,7 @@ const styles = StyleSheet.create({
   modeLabel: { fontSize: 32, fontFamily: 'Andika_700Bold' },
   modeCaption: { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: 4 },
   timedRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 32 },
+  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16 },
   timedLabel: { fontSize: 20, fontWeight: '800', color: INK },
 
   header: {
@@ -527,7 +618,38 @@ const styles = StyleSheet.create({
   skip: { backgroundColor: RED },
   check: { backgroundColor: GREEN },
 
+  doneContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   trophy: { fontSize: 140 },
+  trophySmall: { fontSize: 80 },
+  results: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    maxWidth: 460,
+    marginTop: 24,
+  },
+  resultChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  resultLetter: { fontSize: 22, fontFamily: 'Andika_700Bold' },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 32,
+    backgroundColor: RED,
+    elevation: 6,
+  },
+  retryLabel: { fontSize: 20, fontWeight: '900', color: '#fff' },
   doneTitle: { fontSize: 44, fontWeight: '900', color: RED, marginTop: 8 },
   doneSubtitle: { fontSize: 22, fontWeight: '700', color: INK, marginTop: 8 },
   doneTime: { fontSize: 22, fontWeight: '800', color: BLUE, marginTop: 8, textAlign: 'center' },
