@@ -9,7 +9,7 @@ export const finishScreenStyles = StyleSheet.create({
   scoreText: { fontSize: 22, fontWeight: '700', color: COLORS.ink, marginTop: 8 },
   finishTimeText: { fontSize: 22, fontWeight: '800', color: COLORS.blue, marginTop: 8, textAlign: 'center' },
 
-  letterResults: {
+  cardResults: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -17,7 +17,7 @@ export const finishScreenStyles = StyleSheet.create({
     maxWidth: 460,
     marginTop: 24,
   },
-  letterResultChip: {
+  cardResultChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
@@ -27,7 +27,7 @@ export const finishScreenStyles = StyleSheet.create({
   },
   correctChip: { backgroundColor: COLORS.green },
   missedChip: { backgroundColor: COLORS.red },
-  letterResultText: { fontSize: 22, fontFamily: READER_FONT_FAMILY },
+  cardResultText: { fontSize: 22, fontFamily: READER_FONT_FAMILY },
 
   practiceMissedButton: {
     flexDirection: 'row',
