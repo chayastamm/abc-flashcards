@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { Confetti } from '../components/Confetti';
 import { COLORS } from '../constants/theme';
 import { commonStyles } from '../styles/common.styles';
@@ -20,7 +19,7 @@ export function FinishScreen({
   roundLetters: string[];
   // The deck's full letter set. On a retry round, letters outside it were already right in an earlier round.
   deckLetters: string[];
-  // Null when missed letters repeat, since every letter ends up correct.
+  // Null when auto-redo is on, since every letter ends up correct.
   missedLetters: string[] | null;
   // Null when timed mode is off.
   elapsedMs: number | null;
@@ -33,7 +32,6 @@ export function FinishScreen({
   const trophyEntrance = useState(() => new Animated.Value(0))[0];
 
   useEffect(() => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Animated.spring(trophyEntrance, { toValue: 1, friction: 4, tension: 60, useNativeDriver: true }).start();
   }, [trophyEntrance]);
 

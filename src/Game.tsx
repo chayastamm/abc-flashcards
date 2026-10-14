@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DeckType } from './constants/decks';
 import { FinishScreen } from './screens/FinishScreen';
@@ -19,8 +18,8 @@ export function Game() {
   // Off each time the app opens; it isn't persisted.
   const [isTimedModeEnabled, setIsTimedModeEnabled] = useState(false);
   // On: missed cards go to the back of the deck. Off: each card shows once and the score is tallied.
-  const [isRepeatMissedEnabled, setIsRepeatMissedEnabled] = useState(true);
-  // The letters in this round, in alphabet order, and the ones missed when misses don't repeat.
+  const [isAutoRedoEnabled, setIsAutoRedoEnabled] = useState(true);
+  // The letters in this round, in alphabet order, and the ones missed when auto-redo is off.
   const [roundLetters, setRoundLetters] = useState<string[]>([]);
   const [missedLetters, setMissedLetters] = useState<string[]>([]);
   const [roundStartTime, setRoundStartTime] = useState(0);
@@ -46,16 +45,10 @@ export function Game() {
     setRemainingCards(cardsAfterTop);
   };
 
-  const handleGotIt = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    removeTopCard();
-  };
-
-  // Send the card to the back of the deck so it repeats, or record the miss and move on if repeats are off.
+  // Send the card to the back of the deck so it repeats, or record the miss and move on if auto-redo is off.
   const handleTryAgain = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const [topCard, ...cardsAfterTop] = remainingCards;
-    if (!isRepeatMissedEnabled) {
+    if (!isAutoRedoEnabled) {
       setMissedLetters([...missedLetters, topCard]);
       removeTopCard();
       return;
@@ -74,8 +67,8 @@ export function Game() {
           onSelectDeck={startRound}
           isTimedModeEnabled={isTimedModeEnabled}
           onTimedModeChange={setIsTimedModeEnabled}
-          isRepeatMissedEnabled={isRepeatMissedEnabled}
-          onRepeatMissedChange={setIsRepeatMissedEnabled}
+          isAutoRedoEnabled={isAutoRedoEnabled}
+          onAutoRedoChange={setIsAutoRedoEnabled}
         />
       )}
       {currentScreen === 'play' && remainingCards.length > 0 && (
@@ -83,7 +76,7 @@ export function Game() {
           remainingCards={remainingCards}
           totalCardCount={roundLetters.length}
           roundStartTime={isTimedModeEnabled ? roundStartTime : null}
-          onGotIt={handleGotIt}
+          onGotIt={removeTopCard}
           onTryAgain={handleTryAgain}
           onHome={goHome}
         />
@@ -92,7 +85,7 @@ export function Game() {
         <FinishScreen
           roundLetters={roundLetters}
           deckLetters={getLettersForDeck(deckType)}
-          missedLetters={isRepeatMissedEnabled ? null : missedLetters}
+          missedLetters={isAutoRedoEnabled ? null : missedLetters}
           elapsedMs={isTimedModeEnabled ? elapsedMs : null}
           onPlayAgain={() => startRound(deckType)}
           onPracticeMissed={() => startRound(deckType, getMissedLettersInOrder(roundLetters, missedLetters))}

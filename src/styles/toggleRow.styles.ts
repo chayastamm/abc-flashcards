@@ -6,4 +6,5 @@ export const toggleRowStyles = StyleSheet.create({
   label: { fontSize: 20, fontWeight: '800', color: COLORS.ink },
 });
 
-export const SWITCH_TRACK_COLORS = { false: COLORS.switchTrackOff, true: COLORS.green };
+// The "on" color matches the label text.
+export const SWITCH_TRACK_COLORS = { false: COLORS.switchTrackOff, true: COLORS.ink };

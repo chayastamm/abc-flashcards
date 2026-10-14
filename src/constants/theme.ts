@@ -9,6 +9,7 @@ export const COLORS = {
   white: '#FFFFFF',
   switchTrackOff: '#CED4DA',
   progressTrack: '#E2E6EA',
+  pressGlow: '#4CC9F0', // lit-up ring around a pressed button
 } as const;
 
 // Cards and confetti cycle through these.

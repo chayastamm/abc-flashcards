@@ -13,14 +13,14 @@ export function StartScreen({
   onSelectDeck,
   isTimedModeEnabled,
   onTimedModeChange,
-  isRepeatMissedEnabled,
-  onRepeatMissedChange,
+  isAutoRedoEnabled,
+  onAutoRedoChange,
 }: {
   onSelectDeck: (deckType: DeckType) => void;
   isTimedModeEnabled: boolean;
   onTimedModeChange: (isEnabled: boolean) => void;
-  isRepeatMissedEnabled: boolean;
-  onRepeatMissedChange: (isEnabled: boolean) => void;
+  isAutoRedoEnabled: boolean;
+  onAutoRedoChange: (isEnabled: boolean) => void;
 }) {
   const logoScale = useState(() => new Animated.Value(1))[0];
 
@@ -75,9 +75,9 @@ export function StartScreen({
       />
       <ToggleRow
         iconName="repeat"
-        label="Repeat Missed Letters"
-        isEnabled={isRepeatMissedEnabled}
-        onChange={onRepeatMissedChange}
+        label="Automatically Redo"
+        isEnabled={isAutoRedoEnabled}
+        onChange={onAutoRedoChange}
       />
     </View>
   );

@@ -23,5 +23,5 @@ export const startScreenStyles = StyleSheet.create({
   },
   deckButtonLabel: { fontSize: 32, fontFamily: READER_FONT_FAMILY },
   deckButtonCaption: { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: 4 },
-  firstToggleRow: { marginTop: 32 },
+  firstToggleRow: { marginTop: 34 },
 });
