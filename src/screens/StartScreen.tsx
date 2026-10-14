@@ -67,17 +67,17 @@ export function StartScreen({
         ))}
       </View>
       <ToggleRow
-        iconName="stopwatch"
-        label="Timed Mode"
-        isEnabled={isTimedModeEnabled}
-        onChange={onTimedModeChange}
-        style={startScreenStyles.firstToggleRow}
-      />
-      <ToggleRow
         iconName="repeat"
         label="Automatically Redo Missed Letters"
         isEnabled={isAutoRedoEnabled}
         onChange={onAutoRedoChange}
+        style={startScreenStyles.firstToggleRow}
+      />
+      <ToggleRow
+        iconName="stopwatch"
+        label="Timed Mode"
+        isEnabled={isTimedModeEnabled}
+        onChange={onTimedModeChange}
       />
     </View>
   );
