@@ -75,7 +75,7 @@ export function StartScreen({
       />
       <ToggleRow
         iconName="repeat"
-        label="Automatically Redo"
+        label="Automatically Redo Missed Letters"
         isEnabled={isAutoRedoEnabled}
         onChange={onAutoRedoChange}
       />
