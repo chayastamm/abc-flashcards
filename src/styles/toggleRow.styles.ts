@@ -9,3 +9,4 @@ export const toggleRowStyles = StyleSheet.create({
 
 // The "on" color matches the label text.
 export const SWITCH_TRACK_COLORS = { false: COLORS.switchTrackOff, true: COLORS.ink };
+export const SWITCH_THUMB_ON_COLOR = COLORS.blue;

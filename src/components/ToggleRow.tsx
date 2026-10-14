@@ -2,7 +2,7 @@ import { ComponentProps } from 'react';
 import { StyleProp, Switch, Text, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/theme';
-import { SWITCH_TRACK_COLORS, toggleRowStyles } from '../styles/toggleRow.styles';
+import { SWITCH_THUMB_ON_COLOR, SWITCH_TRACK_COLORS, toggleRowStyles } from '../styles/toggleRow.styles';
 
 // An icon, a tappable label, and a switch, used for the home-screen options.
 export function ToggleRow({
@@ -29,7 +29,9 @@ export function ToggleRow({
         onValueChange={onChange}
         accessibilityLabel={label}
         trackColor={SWITCH_TRACK_COLORS}
-        thumbColor={COLORS.white}
+        thumbColor={isEnabled ? SWITCH_THUMB_ON_COLOR : COLORS.white}
+        // Web ignores thumbColor when on and falls back to a default green; this prop isn't in the native types.
+        {...{ activeThumbColor: SWITCH_THUMB_ON_COLOR }}
       />
     </View>
   );
