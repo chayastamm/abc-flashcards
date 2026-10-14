@@ -15,10 +15,10 @@ export function Game() {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('start');
   const [deckType, setDeckType] = useState<DeckType>('upper');
   const [remainingCards, setRemainingCards] = useState<string[]>([]);
-  // Off each time the app opens; it isn't persisted.
+  // Both options are off each time the app opens; they aren't persisted.
   const [isTimedModeEnabled, setIsTimedModeEnabled] = useState(false);
   // On: missed cards go to the back of the deck. Off: each card shows once and the score is tallied.
-  const [isAutoRedoEnabled, setIsAutoRedoEnabled] = useState(true);
+  const [isAutoRedoEnabled, setIsAutoRedoEnabled] = useState(false);
   // The letters in this round, in alphabet order, and the ones missed when auto-redo is off.
   const [roundLetters, setRoundLetters] = useState<string[]>([]);
   const [missedLetters, setMissedLetters] = useState<string[]>([]);
