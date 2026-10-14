@@ -19,9 +19,14 @@ export const startScreenStyles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 24,
     alignItems: 'center',
+    justifyContent: 'center',
     elevation: 6,
   },
   deckButtonLabel: { fontSize: 32, fontFamily: READER_FONT_FAMILY },
+  // Word labels like "Easy" or "11 - 20" are wider than "ABC", so they're smaller to stay on one line.
+  wordDeckButtonLabel: { fontSize: 26 },
+  // Three word labels share the row's width, so "Medium" and "11 - 20" need a little less.
+  narrowWordDeckButtonLabel: { fontSize: 22 },
   deckButtonCaption: { fontSize: 15, fontWeight: '800', textAlign: 'center', marginTop: 4 },
   firstToggleRow: { marginTop: 34 },
 });

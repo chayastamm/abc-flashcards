@@ -10,8 +10,6 @@ export const playScreenStyles = StyleSheet.create({
     paddingTop: 12,
   },
   headerSide: { flex: 1 },
-  // Padding gives the pressed glow a round shape; the negative margin keeps the icon where it was.
-  homeIconButton: { alignSelf: 'flex-start', padding: 6, margin: -6, borderRadius: 24 },
   headerRightSide: { alignItems: 'flex-end' },
   progressText: { fontSize: 22, fontWeight: '800', color: COLORS.ink },
   progressTrack: {
@@ -26,13 +24,17 @@ export const playScreenStyles = StyleSheet.create({
 
   card: {
     borderRadius: 32,
+    // Keeps full-card fills (like the gold and silver shine) inside the rounded corners.
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
     borderWidth: 4,
     borderColor: COLORS.ink,
   },
-  cardLetter: { fontFamily: READER_FONT_FAMILY, includeFontPadding: false },
+  cardText: { fontFamily: READER_FONT_FAMILY, includeFontPadding: false },
+  // Pinned to the bottom of the card so the drawing above it doesn't move when the name appears.
+  revealedCardName: { position: 'absolute', bottom: 16, fontFamily: READER_FONT_FAMILY },
 
   footer: {
     flexDirection: 'row',
@@ -46,4 +48,5 @@ export const playScreenStyles = StyleSheet.create({
   gotItLabel: { color: COLORS.ink },
   tryAgainButton: { backgroundColor: COLORS.red },
   gotItButton: { backgroundColor: COLORS.green },
+  waitingButton: { opacity: 0.4 },
 });
