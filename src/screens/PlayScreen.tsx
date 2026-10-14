@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Text, useWindowDimensions, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ElapsedTimer } from '../components/ElapsedTimer';
+import { GlowPressable } from '../components/GlowPressable';
 import { COLORS } from '../constants/theme';
-import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
+import { commonStyles } from '../styles/common.styles';
 import { playScreenStyles } from '../styles/playScreen.styles';
 import { getCardColor, getCardSize, getTextColorOn } from '../utils';
 
@@ -47,17 +48,15 @@ export function PlayScreen({
     <View style={commonStyles.fill}>
       <View style={playScreenStyles.header}>
         <View style={playScreenStyles.headerSide}>
-          <Pressable
+          <GlowPressable
             onPress={onHome}
             hitSlop={12}
             accessibilityLabel="Home"
-            style={({ pressed: isPressed }) => [
-              playScreenStyles.homeIconButton,
-              isPressed && getPressedGlowStyle(COLORS.ink),
-            ]}
+            glowColor={COLORS.ink}
+            style={playScreenStyles.homeIconButton}
           >
             <Ionicons name="home" size={30} color={COLORS.ink} />
-          </Pressable>
+          </GlowPressable>
         </View>
         <Text style={playScreenStyles.progressText}>
           {completedCardCount + 1} / {totalCardCount}
@@ -106,31 +105,25 @@ export function PlayScreen({
       <View style={playScreenStyles.footer}>
         <View style={playScreenStyles.footerItem}>
           <Text style={[playScreenStyles.footerLabel, playScreenStyles.tryAgainLabel]}>Try Again!</Text>
-          <Pressable
+          <GlowPressable
             onPress={onTryAgain}
             accessibilityLabel="Try again"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              playScreenStyles.tryAgainButton,
-              isPressed && getPressedGlowStyle(COLORS.red),
-            ]}
+            glowColor={COLORS.red}
+            style={[commonStyles.roundButton, playScreenStyles.tryAgainButton]}
           >
             <Ionicons name="close" size={56} color={COLORS.white} />
-          </Pressable>
+          </GlowPressable>
         </View>
         <View style={playScreenStyles.footerItem}>
           <Text style={[playScreenStyles.footerLabel, playScreenStyles.gotItLabel]}>Got it!</Text>
-          <Pressable
+          <GlowPressable
             onPress={onGotIt}
             accessibilityLabel="Got it"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              playScreenStyles.gotItButton,
-              isPressed && getPressedGlowStyle(COLORS.green),
-            ]}
+            glowColor={COLORS.green}
+            style={[commonStyles.roundButton, playScreenStyles.gotItButton]}
           >
             <Ionicons name="checkmark" size={56} color={getTextColorOn(COLORS.green)} />
-          </Pressable>
+          </GlowPressable>
         </View>
       </View>
     </View>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, Text, View } from 'react-native';
+import { GlowPressable } from '../components/GlowPressable';
 import { ToggleRow } from '../components/ToggleRow';
 import { DECK_OPTIONS, DeckType } from '../constants/decks';
-import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
+import { commonStyles } from '../styles/common.styles';
 import { startScreenStyles } from '../styles/startScreen.styles';
 import { getTextColorOn } from '../utils';
 
@@ -50,20 +51,17 @@ export function StartScreen({
       />
       <View style={startScreenStyles.deckButtonRow}>
         {DECK_OPTIONS.map(({ deckType, label, caption, color }) => (
-          <Pressable
+          <GlowPressable
             key={deckType}
             onPress={() => onSelectDeck(deckType)}
             accessibilityRole="button"
             accessibilityLabel={caption}
-            style={({ pressed: isPressed }) => [
-              startScreenStyles.deckButton,
-              { backgroundColor: color },
-              isPressed && getPressedGlowStyle(color),
-            ]}
+            glowColor={color}
+            style={[startScreenStyles.deckButton, { backgroundColor: color }]}
           >
             <Text style={[startScreenStyles.deckButtonLabel, { color: getTextColorOn(color) }]}>{label}</Text>
             <Text style={[startScreenStyles.deckButtonCaption, { color: getTextColorOn(color) }]}>{caption}</Text>
-          </Pressable>
+          </GlowPressable>
         ))}
       </View>
       <ToggleRow

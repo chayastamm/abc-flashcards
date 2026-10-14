@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Confetti } from '../components/Confetti';
+import { GlowPressable } from '../components/GlowPressable';
 import { COLORS } from '../constants/theme';
-import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
+import { commonStyles } from '../styles/common.styles';
 import { finishScreenStyles } from '../styles/finishScreen.styles';
 import { formatElapsedDuration, getTextColorOn } from '../utils';
 
@@ -78,44 +79,36 @@ export function FinishScreen({
                 );
               })}
             </View>
-            <Pressable
+            <GlowPressable
               onPress={onPracticeMissed}
               accessibilityRole="button"
-              style={({ pressed: isPressed }) => [
-                finishScreenStyles.practiceMissedButton,
-                isPressed && getPressedGlowStyle(COLORS.red),
-              ]}
+              glowColor={COLORS.red}
+              style={finishScreenStyles.practiceMissedButton}
             >
               <Ionicons name="repeat" size={28} color={COLORS.white} />
               <Text style={finishScreenStyles.practiceMissedLabel}>
                 Practice the {missedLetters.length} I missed
               </Text>
-            </Pressable>
+            </GlowPressable>
           </>
         )}
         <View style={finishScreenStyles.navigationButtons}>
-          <Pressable
+          <GlowPressable
             onPress={onHome}
             accessibilityLabel="Home"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              finishScreenStyles.homeButton,
-              isPressed && getPressedGlowStyle(COLORS.yellow),
-            ]}
+            glowColor={COLORS.yellow}
+            style={[commonStyles.roundButton, finishScreenStyles.homeButton]}
           >
             <Ionicons name="home" size={44} color={getTextColorOn(COLORS.yellow)} />
-          </Pressable>
-          <Pressable
+          </GlowPressable>
+          <GlowPressable
             onPress={onPlayAgain}
             accessibilityLabel="Play again"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              finishScreenStyles.playAgainButton,
-              isPressed && getPressedGlowStyle(COLORS.blue),
-            ]}
+            glowColor={COLORS.blue}
+            style={[commonStyles.roundButton, finishScreenStyles.playAgainButton]}
           >
             <Ionicons name="refresh" size={52} color={COLORS.white} />
-          </Pressable>
+          </GlowPressable>
         </View>
       </ScrollView>
     </View>
