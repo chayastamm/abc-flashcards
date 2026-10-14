@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, BackHandler, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Subject, SUBJECT_OPTIONS } from '../constants/decks';
 import { COLORS } from '../constants/theme';
 import { MENU_ICON_SQUARE_COLORS, subjectMenuStyles } from '../styles/subjectMenu.styles';
@@ -17,6 +18,7 @@ export function SubjectMenu({
   onSelectSubject: (subject: Subject) => void;
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const safeAreaInsets = useSafeAreaInsets();
   const menuOpenProgress = useState(() => new Animated.Value(0))[0];
 
   // Grow the menu out of the icon each time it opens.
@@ -30,6 +32,16 @@ export function SubjectMenu({
     }).start();
   }, [isMenuOpen, menuOpenProgress]);
 
+  // Android's back button closes the open menu instead of leaving the app.
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const backPressSubscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      setIsMenuOpen(false);
+      return true;
+    });
+    return () => backPressSubscription.remove();
+  }, [isMenuOpen]);
+
   const selectSubject = (subject: Subject) => {
     setIsMenuOpen(false);
     onSelectSubject(subject);
@@ -39,7 +51,8 @@ export function SubjectMenu({
     <>
       {isMenuOpen && (
         <Pressable
-          style={subjectMenuStyles.backdrop}
+          // Reach past the safe-area padding so taps near the notch or home bar also close the menu.
+          style={[subjectMenuStyles.backdrop, { top: -safeAreaInsets.top, bottom: -safeAreaInsets.bottom }]}
           onPress={() => setIsMenuOpen(false)}
           accessibilityLabel="Close menu"
         />
