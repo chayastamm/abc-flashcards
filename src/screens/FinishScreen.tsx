@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { Confetti } from '../components/Confetti';
+import { GlowPressable } from '../components/GlowPressable';
 import { COLORS } from '../constants/theme';
 import { commonStyles } from '../styles/common.styles';
 import { finishScreenStyles } from '../styles/finishScreen.styles';
@@ -20,7 +20,7 @@ export function FinishScreen({
   roundLetters: string[];
   // The deck's full letter set. On a retry round, letters outside it were already right in an earlier round.
   deckLetters: string[];
-  // Null when missed letters repeat, since every letter ends up correct.
+  // Null when auto-redo is on, since every letter ends up correct.
   missedLetters: string[] | null;
   // Null when timed mode is off.
   elapsedMs: number | null;
@@ -33,7 +33,6 @@ export function FinishScreen({
   const trophyEntrance = useState(() => new Animated.Value(0))[0];
 
   useEffect(() => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Animated.spring(trophyEntrance, { toValue: 1, friction: 4, tension: 60, useNativeDriver: true }).start();
   }, [trophyEntrance]);
 
@@ -80,44 +79,36 @@ export function FinishScreen({
                 );
               })}
             </View>
-            <Pressable
+            <GlowPressable
               onPress={onPracticeMissed}
               accessibilityRole="button"
-              style={({ pressed: isPressed }) => [
-                finishScreenStyles.practiceMissedButton,
-                isPressed && commonStyles.pressed,
-              ]}
+              glowColor={COLORS.red}
+              style={finishScreenStyles.practiceMissedButton}
             >
               <Ionicons name="repeat" size={28} color={COLORS.white} />
               <Text style={finishScreenStyles.practiceMissedLabel}>
                 Practice the {missedLetters.length} I missed
               </Text>
-            </Pressable>
+            </GlowPressable>
           </>
         )}
         <View style={finishScreenStyles.navigationButtons}>
-          <Pressable
+          <GlowPressable
             onPress={onHome}
             accessibilityLabel="Home"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              finishScreenStyles.homeButton,
-              isPressed && commonStyles.pressed,
-            ]}
+            glowColor={COLORS.yellow}
+            style={[commonStyles.roundButton, finishScreenStyles.homeButton]}
           >
             <Ionicons name="home" size={44} color={getTextColorOn(COLORS.yellow)} />
-          </Pressable>
-          <Pressable
+          </GlowPressable>
+          <GlowPressable
             onPress={onPlayAgain}
             accessibilityLabel="Play again"
-            style={({ pressed: isPressed }) => [
-              commonStyles.roundButton,
-              finishScreenStyles.playAgainButton,
-              isPressed && commonStyles.pressed,
-            ]}
+            glowColor={COLORS.blue}
+            style={[commonStyles.roundButton, finishScreenStyles.playAgainButton]}
           >
             <Ionicons name="refresh" size={52} color={COLORS.white} />
-          </Pressable>
+          </GlowPressable>
         </View>
       </ScrollView>
     </View>

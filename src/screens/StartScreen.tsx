@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, Text, View } from 'react-native';
+import { GlowPressable } from '../components/GlowPressable';
 import { ToggleRow } from '../components/ToggleRow';
 import { DECK_OPTIONS, DeckType } from '../constants/decks';
 import { commonStyles } from '../styles/common.styles';
@@ -13,14 +14,14 @@ export function StartScreen({
   onSelectDeck,
   isTimedModeEnabled,
   onTimedModeChange,
-  isRepeatMissedEnabled,
-  onRepeatMissedChange,
+  isAutoRedoEnabled,
+  onAutoRedoChange,
 }: {
   onSelectDeck: (deckType: DeckType) => void;
   isTimedModeEnabled: boolean;
   onTimedModeChange: (isEnabled: boolean) => void;
-  isRepeatMissedEnabled: boolean;
-  onRepeatMissedChange: (isEnabled: boolean) => void;
+  isAutoRedoEnabled: boolean;
+  onAutoRedoChange: (isEnabled: boolean) => void;
 }) {
   const logoScale = useState(() => new Animated.Value(1))[0];
 
@@ -50,34 +51,31 @@ export function StartScreen({
       />
       <View style={startScreenStyles.deckButtonRow}>
         {DECK_OPTIONS.map(({ deckType, label, caption, color }) => (
-          <Pressable
+          <GlowPressable
             key={deckType}
             onPress={() => onSelectDeck(deckType)}
             accessibilityRole="button"
             accessibilityLabel={caption}
-            style={({ pressed: isPressed }) => [
-              startScreenStyles.deckButton,
-              { backgroundColor: color },
-              isPressed && commonStyles.pressed,
-            ]}
+            glowColor={color}
+            style={[startScreenStyles.deckButton, { backgroundColor: color }]}
           >
             <Text style={[startScreenStyles.deckButtonLabel, { color: getTextColorOn(color) }]}>{label}</Text>
             <Text style={[startScreenStyles.deckButtonCaption, { color: getTextColorOn(color) }]}>{caption}</Text>
-          </Pressable>
+          </GlowPressable>
         ))}
       </View>
+      <ToggleRow
+        iconName="repeat"
+        label="Automatically Redo Missed Letters"
+        isEnabled={isAutoRedoEnabled}
+        onChange={onAutoRedoChange}
+        style={startScreenStyles.firstToggleRow}
+      />
       <ToggleRow
         iconName="stopwatch"
         label="Timed Mode"
         isEnabled={isTimedModeEnabled}
         onChange={onTimedModeChange}
-        style={startScreenStyles.firstToggleRow}
-      />
-      <ToggleRow
-        iconName="repeat"
-        label="Repeat Missed Letters"
-        isEnabled={isRepeatMissedEnabled}
-        onChange={onRepeatMissedChange}
       />
     </View>
   );

@@ -10,6 +10,8 @@ export const playScreenStyles = StyleSheet.create({
     paddingTop: 12,
   },
   headerSide: { flex: 1 },
+  // Padding gives the pressed glow a round shape; the negative margin keeps the icon where it was.
+  homeIconButton: { alignSelf: 'flex-start', padding: 6, margin: -6, borderRadius: 24 },
   headerRightSide: { alignItems: 'flex-end' },
   progressText: { fontSize: 22, fontWeight: '800', color: COLORS.ink },
   progressTrack: {
