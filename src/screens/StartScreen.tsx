@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import { ToggleRow } from '../components/ToggleRow';
 import { DECK_OPTIONS, DeckType } from '../constants/decks';
-import { commonStyles } from '../styles/common.styles';
+import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
 import { startScreenStyles } from '../styles/startScreen.styles';
 import { getTextColorOn } from '../utils';
 
@@ -58,7 +58,7 @@ export function StartScreen({
             style={({ pressed: isPressed }) => [
               startScreenStyles.deckButton,
               { backgroundColor: color },
-              isPressed && commonStyles.pressed,
+              isPressed && getPressedGlowStyle(color),
             ]}
           >
             <Text style={[startScreenStyles.deckButtonLabel, { color: getTextColorOn(color) }]}>{label}</Text>

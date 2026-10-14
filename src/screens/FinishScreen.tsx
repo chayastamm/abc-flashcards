@@ -3,7 +3,7 @@ import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Confetti } from '../components/Confetti';
 import { COLORS } from '../constants/theme';
-import { commonStyles } from '../styles/common.styles';
+import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
 import { finishScreenStyles } from '../styles/finishScreen.styles';
 import { formatElapsedDuration, getTextColorOn } from '../utils';
 
@@ -83,7 +83,7 @@ export function FinishScreen({
               accessibilityRole="button"
               style={({ pressed: isPressed }) => [
                 finishScreenStyles.practiceMissedButton,
-                isPressed && commonStyles.pressed,
+                isPressed && getPressedGlowStyle(COLORS.red),
               ]}
             >
               <Ionicons name="repeat" size={28} color={COLORS.white} />
@@ -100,7 +100,7 @@ export function FinishScreen({
             style={({ pressed: isPressed }) => [
               commonStyles.roundButton,
               finishScreenStyles.homeButton,
-              isPressed && commonStyles.pressed,
+              isPressed && getPressedGlowStyle(COLORS.yellow),
             ]}
           >
             <Ionicons name="home" size={44} color={getTextColorOn(COLORS.yellow)} />
@@ -111,7 +111,7 @@ export function FinishScreen({
             style={({ pressed: isPressed }) => [
               commonStyles.roundButton,
               finishScreenStyles.playAgainButton,
-              isPressed && commonStyles.pressed,
+              isPressed && getPressedGlowStyle(COLORS.blue),
             ]}
           >
             <Ionicons name="refresh" size={52} color={COLORS.white} />

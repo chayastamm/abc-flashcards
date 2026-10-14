@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ElapsedTimer } from '../components/ElapsedTimer';
 import { COLORS } from '../constants/theme';
-import { commonStyles } from '../styles/common.styles';
+import { commonStyles, getPressedGlowStyle } from '../styles/common.styles';
 import { playScreenStyles } from '../styles/playScreen.styles';
 import { getCardColor, getCardSize, getTextColorOn } from '../utils';
 
@@ -47,7 +47,15 @@ export function PlayScreen({
     <View style={commonStyles.fill}>
       <View style={playScreenStyles.header}>
         <View style={playScreenStyles.headerSide}>
-          <Pressable onPress={onHome} hitSlop={12} accessibilityLabel="Home">
+          <Pressable
+            onPress={onHome}
+            hitSlop={12}
+            accessibilityLabel="Home"
+            style={({ pressed: isPressed }) => [
+              playScreenStyles.homeIconButton,
+              isPressed && getPressedGlowStyle(COLORS.ink),
+            ]}
+          >
             <Ionicons name="home" size={30} color={COLORS.ink} />
           </Pressable>
         </View>
@@ -104,7 +112,7 @@ export function PlayScreen({
             style={({ pressed: isPressed }) => [
               commonStyles.roundButton,
               playScreenStyles.tryAgainButton,
-              isPressed && commonStyles.pressed,
+              isPressed && getPressedGlowStyle(COLORS.red),
             ]}
           >
             <Ionicons name="close" size={56} color={COLORS.white} />
@@ -118,7 +126,7 @@ export function PlayScreen({
             style={({ pressed: isPressed }) => [
               commonStyles.roundButton,
               playScreenStyles.gotItButton,
-              isPressed && commonStyles.pressed,
+              isPressed && getPressedGlowStyle(COLORS.green),
             ]}
           >
             <Ionicons name="checkmark" size={56} color={getTextColorOn(COLORS.green)} />
