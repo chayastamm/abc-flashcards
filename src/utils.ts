@@ -62,9 +62,9 @@ export function getCardDisplayName(card: string): string {
   return isShapeCard(card) || isColorCard(card) ? card.charAt(0).toUpperCase() + card.slice(1) : card;
 }
 
-// Whether a missed card in this deck shows its name before the round moves on.
-export function doesDeckRevealNameOnMiss(deckType: DeckType): boolean {
-  return SUBJECT_OPTIONS.some((option) => option.namedOnMissDeckTypes?.includes(deckType));
+// Whether cards in this deck have a toggle that shows and hides their name.
+export function doesDeckHaveAnswerToggle(deckType: DeckType): boolean {
+  return SUBJECT_OPTIONS.some((option) => option.answerToggleDeckTypes?.includes(deckType));
 }
 
 // Keeps the round's deck order so a retry deck matches the results grid.

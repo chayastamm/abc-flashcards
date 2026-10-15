@@ -35,6 +35,19 @@ export const playScreenStyles = StyleSheet.create({
   cardText: { fontFamily: READER_FONT_FAMILY, includeFontPadding: false },
   // Pinned to the bottom of the card so the drawing above it doesn't move when the name appears.
   revealedCardName: { position: 'absolute', bottom: 16, fontFamily: READER_FONT_FAMILY },
+  answerToggle: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.white,
+    borderWidth: 2,
+    borderColor: COLORS.ink,
+  },
 
   footer: {
     flexDirection: 'row',
@@ -48,5 +61,4 @@ export const playScreenStyles = StyleSheet.create({
   gotItLabel: { color: COLORS.ink },
   tryAgainButton: { backgroundColor: COLORS.red },
   gotItButton: { backgroundColor: COLORS.green },
-  waitingButton: { opacity: 0.4 },
 });

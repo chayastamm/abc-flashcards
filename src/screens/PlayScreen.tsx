@@ -27,8 +27,7 @@ export function PlayScreen({
   remainingCards,
   totalCardCount,
   roundStartTime,
-  isCardNameRevealed,
-  doesRevealNameOnMiss,
+  hasAnswerToggle,
   onGotIt,
   onTryAgain,
   onHome,
@@ -37,10 +36,8 @@ export function PlayScreen({
   totalCardCount: number;
   // Null when timed mode is off.
   roundStartTime: number | null;
-  // True while a missed card's name is shown; the answer buttons wait until it's done.
-  isCardNameRevealed: boolean;
-  // In decks that name missed cards, the left button asks to be shown instead of to try again.
-  doesRevealNameOnMiss: boolean;
+  // Shows a button on the card that shows and hides its name.
+  hasAnswerToggle: boolean;
   onGotIt: () => void;
   onTryAgain: () => void;
   onHome: () => void;
@@ -50,6 +47,9 @@ export function PlayScreen({
   const cardTextColor = getTextColorOn(cardColor);
   const completedCardCount = totalCardCount - remainingCards.length;
   const cardEntrance = useState(() => new Animated.Value(0))[0];
+  // The deck array the name was revealed for, so each new card (a new array on every tap) starts hidden.
+  const [revealedForCards, setRevealedForCards] = useState<string[] | null>(null);
+  const isCardNameRevealed = revealedForCards === remainingCards;
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const safeAreaInsets = useSafeAreaInsets();
@@ -118,24 +118,29 @@ export function PlayScreen({
               {getCardDisplayName(currentCard)}
             </Text>
           )}
+          {hasAnswerToggle && (
+            <GlowPressable
+              onPress={() => setRevealedForCards(isCardNameRevealed ? null : remainingCards)}
+              accessibilityLabel={isCardNameRevealed ? 'Hide answer' : 'Show answer'}
+              glowColor={COLORS.ink}
+              style={playScreenStyles.answerToggle}
+            >
+              <Ionicons name={isCardNameRevealed ? 'eye-off' : 'eye'} size={26} color={COLORS.ink} />
+            </GlowPressable>
+          )}
         </Animated.View>
       </View>
 
       <View style={playScreenStyles.footer}>
         <View style={playScreenStyles.footerItem}>
           <Text style={[playScreenStyles.footerLabel, playScreenStyles.tryAgainLabel]}>
-            {doesRevealNameOnMiss ? 'Show me!' : 'Try Again!'}
+            Try Again!
           </Text>
           <GlowPressable
             onPress={onTryAgain}
-            disabled={isCardNameRevealed}
-            accessibilityLabel={doesRevealNameOnMiss ? 'Show me' : 'Try again'}
+            accessibilityLabel="Try again"
             glowColor={COLORS.red}
-            style={[
-              commonStyles.roundButton,
-              playScreenStyles.tryAgainButton,
-              isCardNameRevealed && playScreenStyles.waitingButton,
-            ]}
+            style={[commonStyles.roundButton, playScreenStyles.tryAgainButton]}
           >
             <Ionicons name="close" size={56} color={COLORS.white} />
           </GlowPressable>
@@ -144,14 +149,9 @@ export function PlayScreen({
           <Text style={[playScreenStyles.footerLabel, playScreenStyles.gotItLabel]}>Got it!</Text>
           <GlowPressable
             onPress={onGotIt}
-            disabled={isCardNameRevealed}
             accessibilityLabel="Got it"
             glowColor={COLORS.green}
-            style={[
-              commonStyles.roundButton,
-              playScreenStyles.gotItButton,
-              isCardNameRevealed && playScreenStyles.waitingButton,
-            ]}
+            style={[commonStyles.roundButton, playScreenStyles.gotItButton]}
           >
             <Ionicons name="checkmark" size={56} color={getTextColorOn(COLORS.green)} />
           </GlowPressable>
