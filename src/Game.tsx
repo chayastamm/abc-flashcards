@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DeckType, MISSED_CARD_NAME_REVEAL_MS, Subject } from './constants/decks';
+import { DeckType, Subject } from './constants/decks';
 import { FinishScreen } from './screens/FinishScreen';
 import { PlayScreen } from './screens/PlayScreen';
 import { StartScreen } from './screens/StartScreen';
 import { commonStyles } from './styles/common.styles';
 import {
-  doesDeckRevealNameOnMiss,
+  doesDeckHaveAnswerToggle,
   getCardsForDeck,
   getMissedCardsInOrder,
   getSubjectOption,
@@ -31,19 +31,6 @@ export function Game() {
   const [missedCards, setMissedCards] = useState<string[]>([]);
   const [roundStartTime, setRoundStartTime] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
-  // While true, the current card shows its name and the answer buttons wait.
-  const [isCardNameRevealed, setIsCardNameRevealed] = useState(false);
-  const revealTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const cancelNameReveal = () => {
-    if (revealTimeout.current) clearTimeout(revealTimeout.current);
-    revealTimeout.current = null;
-    setIsCardNameRevealed(false);
-  };
-
-  useEffect(() => () => {
-    if (revealTimeout.current) clearTimeout(revealTimeout.current);
-  }, []);
 
   // Plays the full deck, or just the given cards (e.g. a retry of missed ones).
   const startRound = (selectedDeckType: DeckType, cards = getCardsForDeck(selectedDeckType)) => {
@@ -76,24 +63,7 @@ export function Game() {
     setRemainingCards([...cardsAfterTop, topCard]);
   };
 
-  // In decks that name missed cards (hard shapes), show the name for a few seconds before moving on.
-  const handleTryAgain = () => {
-    if (!doesDeckRevealNameOnMiss(deckType)) {
-      missTopCard();
-      return;
-    }
-    setIsCardNameRevealed(true);
-    revealTimeout.current = setTimeout(() => {
-      revealTimeout.current = null;
-      setIsCardNameRevealed(false);
-      missTopCard();
-    }, MISSED_CARD_NAME_REVEAL_MS);
-  };
-
-  const goHome = () => {
-    cancelNameReveal();
-    setCurrentScreen('start');
-  };
+  const goHome = () => setCurrentScreen('start');
 
   return (
     <View
@@ -116,10 +86,9 @@ export function Game() {
           remainingCards={remainingCards}
           totalCardCount={roundCards.length}
           roundStartTime={isTimedModeEnabled ? roundStartTime : null}
-          isCardNameRevealed={isCardNameRevealed}
-          doesRevealNameOnMiss={doesDeckRevealNameOnMiss(deckType)}
+          hasAnswerToggle={doesDeckHaveAnswerToggle(deckType)}
           onGotIt={removeTopCard}
-          onTryAgain={handleTryAgain}
+          onTryAgain={missTopCard}
           onHome={goHome}
         />
       )}

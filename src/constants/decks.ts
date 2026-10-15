@@ -38,12 +38,9 @@ export type SubjectOption = {
   // Null when the logo is drawn in code instead (see SubjectLogo).
   logo: ImageSourcePropType | null;
   deckOptions: DeckOption[];
-  // Decks where a missed card shows its name for a few seconds before the round moves on.
-  namedOnMissDeckTypes?: DeckType[];
+  // Decks with a toggle on the card that shows and hides its name.
+  answerToggleDeckTypes?: DeckType[];
 };
-
-// How long a missed card's name stays on screen (in decks that show it) before the round moves on.
-export const MISSED_CARD_NAME_REVEAL_MS = 1500;
 
 // Non-breaking spaces around the dash keep each range on one line.
 const rangeLabel = (first: number, last: number) => `${first}\u00A0-\u00A0${last}`;
@@ -113,7 +110,7 @@ export const SUBJECT_OPTIONS: SubjectOption[] = [
       { deckType: 'shapesEasy', label: 'Easy', accessibilityLabel: 'Easy shapes', color: COLORS.red },
       { deckType: 'shapesHard', label: 'Hard', accessibilityLabel: 'Hard shapes', color: COLORS.blue },
     ],
-    namedOnMissDeckTypes: ['shapesHard'],
+    answerToggleDeckTypes: ['shapesHard'],
   },
   {
     subject: 'colors',
