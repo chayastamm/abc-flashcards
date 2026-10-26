@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SubjectMenu } from './components/SubjectMenu';
 import { DeckType, Subject } from './constants/decks';
 import { FinishScreen } from './screens/FinishScreen';
 import { PlayScreen } from './screens/PlayScreen';
@@ -65,45 +66,54 @@ export function Game() {
 
   const goHome = () => setCurrentScreen('start');
 
+  // Picking a subject from any screen ends the round and shows that subject's decks.
+  const selectSubject = (selectedSubject: Subject) => {
+    setSubject(selectedSubject);
+    goHome();
+  };
+
   return (
     <View
       style={[commonStyles.appRoot, { paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}
     >
-      {currentScreen === 'start' && (
-        <StartScreen
-          onHome={goHome}
-          subject={subject}
-          onSubjectChange={setSubject}
-          onSelectDeck={startRound}
-          isTimedModeEnabled={isTimedModeEnabled}
-          onTimedModeChange={setIsTimedModeEnabled}
-          isAutoRedoEnabled={isAutoRedoEnabled}
-          onAutoRedoChange={setIsAutoRedoEnabled}
-        />
-      )}
-      {currentScreen === 'play' && remainingCards.length > 0 && (
-        <PlayScreen
-          remainingCards={remainingCards}
-          totalCardCount={roundCards.length}
-          roundStartTime={isTimedModeEnabled ? roundStartTime : null}
-          hasAnswerToggle={doesDeckHaveAnswerToggle(deckType)}
-          onGotIt={removeTopCard}
-          onTryAgain={missTopCard}
-          onHome={goHome}
-        />
-      )}
-      {currentScreen === 'finish' && (
-        <FinishScreen
-          cardNoun={getSubjectOption(subject).cardNoun}
-          roundCards={roundCards}
-          deckCards={getCardsForDeck(deckType)}
-          missedCards={isAutoRedoEnabled ? null : missedCards}
-          elapsedMs={isTimedModeEnabled ? elapsedMs : null}
-          onPlayAgain={() => startRound(deckType)}
-          onPracticeMissed={() => startRound(deckType, getMissedCardsInOrder(roundCards, missedCards))}
-          onHome={goHome}
-        />
-      )}
+      {/* Positions the screens and the corner menu inside the safe area. */}
+      <View style={commonStyles.fill}>
+        {currentScreen === 'start' && (
+          <StartScreen
+            onHome={goHome}
+            subject={subject}
+            onSelectDeck={startRound}
+            isTimedModeEnabled={isTimedModeEnabled}
+            onTimedModeChange={setIsTimedModeEnabled}
+            isAutoRedoEnabled={isAutoRedoEnabled}
+            onAutoRedoChange={setIsAutoRedoEnabled}
+          />
+        )}
+        {currentScreen === 'play' && remainingCards.length > 0 && (
+          <PlayScreen
+            remainingCards={remainingCards}
+            totalCardCount={roundCards.length}
+            roundStartTime={isTimedModeEnabled ? roundStartTime : null}
+            hasAnswerToggle={doesDeckHaveAnswerToggle(deckType)}
+            onGotIt={removeTopCard}
+            onTryAgain={missTopCard}
+            onHome={goHome}
+          />
+        )}
+        {currentScreen === 'finish' && (
+          <FinishScreen
+            cardNoun={getSubjectOption(subject).cardNoun}
+            roundCards={roundCards}
+            deckCards={getCardsForDeck(deckType)}
+            missedCards={isAutoRedoEnabled ? null : missedCards}
+            elapsedMs={isTimedModeEnabled ? elapsedMs : null}
+            onPlayAgain={() => startRound(deckType)}
+            onPracticeMissed={() => startRound(deckType, getMissedCardsInOrder(roundCards, missedCards))}
+            onHome={goHome}
+          />
+        )}
+        <SubjectMenu selectedSubject={subject} onSelectSubject={selectSubject} />
+      </View>
     </View>
   );
 }

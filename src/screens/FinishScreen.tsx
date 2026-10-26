@@ -35,6 +35,8 @@ export function FinishScreen({
 }) {
   const roundCardCount = roundCards.length;
   const hasMissedCards = missedCards !== null && missedCards.length > 0;
+  // Under half right gets a gentler cheer.
+  const isLowScore = missedCards !== null && missedCards.length > roundCardCount / 2;
   const trophyEntrance = useState(() => new Animated.Value(0))[0];
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export function FinishScreen({
         >
           🏆
         </Animated.Text>
-        <Text style={finishScreenStyles.title}>Great job!</Text>
+        <Text style={finishScreenStyles.title}>{isLowScore ? 'Nice try!' : 'Great job!'}</Text>
         <Text style={finishScreenStyles.scoreText}>
           {missedCards === null
             ? `You did all ${roundCardCount} ${cardNoun}!`

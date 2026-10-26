@@ -7,6 +7,9 @@ const GRID_GAP = 4;
 const ICON_BUTTON_PADDING = 8;
 const ICON_BUTTON_SIZE = GRID_SQUARE_SIZE * 2 + GRID_GAP + ICON_BUTTON_PADDING * 2;
 
+// Room to leave at the right of a header row so its content clears the icon.
+export const MENU_ICON_CLEARANCE = GRID_SQUARE_SIZE * 2 + GRID_GAP + 12;
+
 // Four squares in the main button colors, read left-to-right, top-to-bottom.
 export const MENU_ICON_SQUARE_COLORS = [COLORS.red, COLORS.blue, COLORS.yellow, COLORS.green];
 
