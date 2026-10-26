@@ -3,7 +3,6 @@ import { Animated, Text, View } from 'react-native';
 import { GlowPressable } from '../components/GlowPressable';
 import { HomeIconButton } from '../components/HomeIconButton';
 import { SubjectLogo } from '../components/SubjectLogo';
-import { SubjectMenu } from '../components/SubjectMenu';
 import { ToggleRow } from '../components/ToggleRow';
 import { DeckType, Subject } from '../constants/decks';
 import { commonStyles } from '../styles/common.styles';
@@ -17,7 +16,6 @@ const LOGO_PULSE_DURATION_MS = 800;
 export function StartScreen({
   onHome,
   subject,
-  onSubjectChange,
   onSelectDeck,
   isTimedModeEnabled,
   onTimedModeChange,
@@ -26,7 +24,6 @@ export function StartScreen({
 }: {
   onHome: () => void;
   subject: Subject;
-  onSubjectChange: (subject: Subject) => void;
   onSelectDeck: (deckType: DeckType) => void;
   isTimedModeEnabled: boolean;
   onTimedModeChange: (isEnabled: boolean) => void;
@@ -101,7 +98,6 @@ export function StartScreen({
         onChange={onTimedModeChange}
       />
       <HomeIconButton onPress={onHome} style={homeIconButtonStyles.topLeftCorner} />
-      <SubjectMenu selectedSubject={subject} onSelectSubject={onSubjectChange} />
     </View>
   );
 }

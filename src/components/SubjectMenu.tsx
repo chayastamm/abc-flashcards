@@ -9,7 +9,7 @@ import { SubjectLogo } from './SubjectLogo';
 
 const MENU_OPEN_DURATION_MS = 160;
 
-// The four-square icon in the corner of the home screen, and the menu of flashcard subjects it opens.
+// The four-square icon in the top-right corner of every screen, and the menu of flashcard subjects it opens.
 export function SubjectMenu({
   selectedSubject,
   onSelectSubject,

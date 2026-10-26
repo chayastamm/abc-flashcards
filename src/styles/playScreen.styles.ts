@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { COLORS, READER_FONT_FAMILY } from '../constants/theme';
+import { MENU_ICON_CLEARANCE } from './subjectMenu.styles';
 
 export const playScreenStyles = StyleSheet.create({
   header: {
@@ -10,7 +11,8 @@ export const playScreenStyles = StyleSheet.create({
     paddingTop: 12,
   },
   headerSide: { flex: 1 },
-  headerRightSide: { alignItems: 'flex-end' },
+  // The subject menu icon sits in the top-right corner, so the timer goes just left of it.
+  headerRightSide: { alignItems: 'flex-end', paddingRight: MENU_ICON_CLEARANCE },
   progressText: { fontSize: 22, fontWeight: '800', color: COLORS.ink },
   progressTrack: {
     height: 10,
